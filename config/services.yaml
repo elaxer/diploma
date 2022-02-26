@@ -18,6 +18,7 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/DTO/'
             - '../src/Kernel.php'
             - '../src/Tests/'
 
@@ -26,6 +27,9 @@ services:
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
+
+    JsonMapper\JsonMapperInterface:
+        class: JsonMapper\JsonMapper
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

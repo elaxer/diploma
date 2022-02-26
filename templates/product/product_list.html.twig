@@ -1,0 +1,27 @@
+{% for product in products %}
+    <div class="col-md-4">
+        <div class="product">
+            <ul class="product-labels">
+                {% if product.discountPrice is not null %}
+                    <li>-{{ product.discountPercent }}%</li>
+                {% endif %}
+            </ul>
+            <div class="product-img-wrap">
+                <img class="product-img-primary" src="{{ asset('/uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}" />
+                <img class="product-img-alt" src="{{ asset('/uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}" />
+            </div>
+            <a class="product-link" href="{{ path('product', {id: product.id}) }}"></a>
+            <div class="product-caption">
+                <h5 class="product-caption-title">{{ product }}</h5>
+                <div class="product-caption-price">
+                    {% if product.discountPrice is not null %}
+                        <span class="product-caption-price-old">{{ product.cost|number_format(0, '', ' ') }} ₸</span>
+                        <span class="product-caption-price-new">{{ product.discountPrice|number_format(0, '', ' ') }} ₸</span>
+                    {% else %}
+                        <span class="product-caption-price-new">{{ product.cost|number_format(0, '', ' ') }} ₸</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

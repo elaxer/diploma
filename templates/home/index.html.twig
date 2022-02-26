@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'Главная страница'|trans }}{% endblock %}
+{% block body %}
+
+<div class="gap"></div>
+<h3 class="widget-title-lg">{{ 'Популярные товары'|trans }}</h3>
+<div class="row" data-gutter="15">
+    {% include 'product/product_list.html.twig' with {products: popularProducts} %}
+</div>
+
+<div class="gap"></div>
+<h3 class="widget-title-lg">{{ 'Последние товары'|trans }}</h3>
+<div class="row" data-gutter="15">
+    {% include 'product/product_list.html.twig' with {products: newProducts} %}
+</div>
+{% endblock %}

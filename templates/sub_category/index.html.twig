@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ subCategory.name }}{% endblock %}
+{% block body %}
+    <div class="gap"></div>
+    <h3 class="widget-title-lg">{{ 'Товары категории "%category%"'|trans({'%category%': subCategory}) }}</h3>
+    <div class="row" data-gutter="15">
+        {% if subCategory.products is not empty %}
+            {% include 'product/product_list.html.twig' with {products: subCategory.products} %}
+        {% else %}
+            <div class="text-center"><i class="fa fa-cart-arrow-down empty-cart-icon"></i>
+                <p class="lead">{{ 'Здесь еще пока что нет товаров'|trans }}</p>
+            </div>
+            <div class="gap"></div>
+        {% endif %}
+    </div>
+{% endblock %}

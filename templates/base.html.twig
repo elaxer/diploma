@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto:500,300,700,400italic,400' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/mystyles.css') }}">
+    {% block stylesheets %}
+    {% endblock %}
+    {% block javascripts %}
+    {% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             document.querySelector('#search-form').addEventListener('submit', function (e) {
+                    if (!document.querySelector('[name="searchText"]').value) {
+                        e.preventDefault();
+                    }
+             });
+        });
+    </script>
+</head>
+<body>
+    <div class="global-wrapper clearfix" id="global-wrapper">
+        <nav class="navbar navbar-inverse navbar-main yamm">
+            <div class="container">
+                <div class="navbar-header">
+                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-nav-collapse" area_expanded="false"><span class="sr-only">Main Menu</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{{ url('home') }}">
+                        {{ 'Elixir Store'|trans }}
+                    </a>
+                </div>
+                <div class="collapse navbar-collapse" id="main-nav-collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown"><a href="#"><i class="fa fa-reorder"></i>&nbsp; {{ 'Категории'|trans }}<i class="drop-caret" data-toggle="dropdown"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-category">
+                                {% for category in categories %}
+                                <li><a href="#">{{ category }}</a>
+                                    <div class="dropdown-menu-category-section">
+                                        <div class="dropdown-menu-category-section-inner">
+                                            <div class="dropdown-menu-category-section-content">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h5 class="dropdown-menu-category-title">{{ category }}</h5>
+                                                        <ul class="dropdown-menu-category-list">
+                                                            {% for subCategory in category.subCategories %}
+                                                            <li><a href="{{ path('subcategory', {id: subCategory.id}) }}">{{ subCategory }}</a></li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                    <form class="navbar-form navbar-left navbar-main-search" role="search" action="{{ path('search_products') }}" method="get" id="search-form">
+                        <div class="form-group">
+                            <input class="form-control" type="text" placeholder="{{ 'Поиск товаров'|trans }}" name="searchText" value="{{ searchText }}"/>
+                        </div>
+                        <button class="fa fa-search navbar-main-search-submit" href="#" style="color: inherit;border: none;padding: 0;cursor: pointer;outline: inherit;"></button>
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if app.user %}
+                        <li><a href="{{ path('admin') }}"><i class="fa fa-user"></i></a></li>
+                        {% endif %}
+                        <li class="dropdown">
+                            <a class="fa fa-shopping-cart" href="{{ path('basket') }}"></a>
+                            {% if productsInBasket is not empty %}
+                            <ul class="dropdown-menu dropdown-menu-shipping-cart">
+                                {% for product in productsInBasket %}
+                                <li>
+                                    <a class="dropdown-menu-shipping-cart-img" href="{{ path('product', {id: product.id}) }}">
+                                        <img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}" />
+                                    </a>
+                                    <div class="dropdown-menu-shipping-cart-inner">
+                                        <p class="dropdown-menu-shipping-cart-price">
+                                            {% if product.discountPrice is not null %}
+                                                {{ product.discountPrice|number_format(0, '', ' ') }} ₸
+                                            {% else %}
+                                                {{ product.cost|number_format(0, '', ' ') }} ₸
+                                            {% endif %}
+                                        </p>
+                                        <p class="dropdown-menu-shipping-cart-item"><a href="{{ path('product', {id: product.id}) }}">{{ product }}</a>
+                                        </p>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            {% block body %}
+            {% endblock %}
+        </div>
+        <div class="gap"></div>
+
+        <footer class="main-footer">
+            <div class="container">
+                <div class="row row-col-gap" data-gutter="60">
+                    <div class="col-md-3">
+                        <h4 class="widget-title-sm"> {{ 'Elixir Store'|trans }}</h4>
+                        <p>{{ 'Интернет-площадка "Elixir Store". Бытовая и компьютерная техника, комплектующие, ноутбуки, смартфоны и аксессуары'|trans }}</p>
+                        <ul class="main-footer-social-list">
+                            {% for socialNetwork in socialNetworks %}
+                            <li>
+                                <a class="{{ socialNetwork.iconClass }}" title="{{ socialNetwork }}" href="{{ socialNetwork.url }}"></a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="widget-title-sm">{{ 'Популярные категории'|trans }}</h4>
+                        <ul class="main-footer-tag-list">
+                            {% for subCategory in popularSubCategories %}
+                            <li><a href="{{ path('subcategory', {id: subCategory.id}) }}">{{ subCategory }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+
+                    </div>
+                </div>
+                <img class="main-footer-img" src="{{ asset('assets/img/test_footer2-i.png') }}" alt="Image Alternative text" title="Image Title" />
+            </div>
+        </footer>
+    </div>
+    <script src="{{ asset('assets/js/jquery.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.js') }}"></script>
+    <script src="{{ asset('assets/js/icheck.js') }}"></script>
+    <script src="{{ asset('assets/js/ionrangeslider.js') }}"></script>
+    <script src="{{ asset('assets/js/jqzoom.js') }}"></script>
+    <script src="{{ asset('assets/js/card-payment.js') }}"></script>
+    <script src="{{ asset('assets/js/owl-carousel.js') }}"></script>
+    <script src="{{ asset('assets/js/magnific.js') }}"></script>
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ product }}{% endblock %}
+{% block body %}
+    <header class="page-header">
+        <h1 class="page-title">{{ product }}</h1>
+        <ol class="breadcrumb page-breadcrumb">
+            <li><a href="{{ url('home') }}">{{ 'Главная'|trans }}</a></li>
+            <li>{{ product.subCategory.category }}</li>
+            <li><a href="{{ url('subcategory', {id: product.subCategory.id}) }}">{{ product.subCategory }}</a></li>
+            <li class="active">{{ product }}</li>
+        </ol>
+    </header>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="product-page-product-wrap jqzoom-stage">
+                <div class="clearfix">
+                    <a href="{{ asset('uploads/products/' ~ product.image) }}" id="jqzoom" data-rel="gal-1">
+                        <img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="row" data-gutter="10">
+                <div class="col-md-7">
+                    <div class="box">
+                        <h2 style="padding-left: 20px;">{{ product }}</h2>
+                        {{ product.description|raw }}
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="box-highlight">
+                        {% if product.discountPrice is not null %}
+                            <p class="product-page-price-list">{{ product.cost|number_format(0, '', ' ') }} ₸</p>
+                            <p class="product-page-price">{{ product.discountPrice|number_format(0, '', ' ') }} ₸</p>
+                        {% else %}
+                            <p class="product-page-price">{{ product.cost|number_format(0, '', ' ') }} ₸</p>
+                        {% endif %}
+                        <br>
+                        {% if productInBasket %}
+                            <form action="{{ path('remove_product_from_basket', {id: product.id}) }}" method="post">
+                                <button class="btn btn-block btn-primary">{{ 'Добавлено'|trans }}</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ path('add_product_to_basket', {id: product.id}) }}" method="post">
+                                <button class="btn btn-block btn-primary" href="#"><i class="fa fa-shopping-cart"></i>{{ 'Добавить в корзину'|trans }}</button>
+                            </form>
+                        {% endif %}
+                        <div class="product-page-side-section">
+                            <h5 class="product-page-side-title">{{ 'Доставка'|trans }}</h5>
+                            <p class="product-page-side-text">{{ 'Доставка по всему Казахстану'|trans }}</p>
+                            <p class="product-page-side-text">{{ 'Проверка товара перед отправкой'|trans }}</p>
+                            <p class="product-page-side-text">{{ 'Бесплатная доставка'|trans }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="gap"></div>
+    {% if randomProducts|length is not empty %}
+    <h3 class="widget-title">{{ 'Другие товары'|trans }}</h3>
+    <div class="row" data-gutter="15">
+        {% for product in randomProducts %}
+            <div class="col-md-3">
+                <div class="product">
+                    {% if product.discountPrice is not null %}
+                    <ul class="product-labels">
+                        <li>-{{ product.discountPercent }}%</li>
+                    </ul>
+                    {% endif %}
+                    <div class="product-img-wrap">
+                        <img class="product-img-primary" src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}">
+                        <img class="product-img-alt" src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}">
+                    </div>
+                    <a class="product-link" href="{{ path('product', {id: product.id}) }}"></a>
+                    <div class="product-caption">
+                        <h5 class="product-caption-title">{{ product }}</h5>
+                        <div class="product-caption-price">
+                            {% if product.discountPrice is not null %}
+                                <span class="product-caption-price-old">{{ product.cost|number_format(0, '', ' ') }} ₸</span>
+                                <span class="product-caption-price-new">{{ product.discountPrice|number_format(0, '', ' ') }} ₸</span>
+                            {% else %}
+                                <span class="product-caption-price-new">{{ product.cost|number_format(0, '', ' ') }} ₸</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}

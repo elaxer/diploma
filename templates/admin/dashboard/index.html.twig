@@ -1,0 +1,57 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% block page_title 'Добро пожаловать в панель администратора!'|trans %}
+
+{% block page_content %}
+    <h2 style="margin-bottom: 10px;">{{ 'Общая статистика'|trans }}</h2>
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-md-6">
+            <table class="table">
+                <tr>
+                    <th>{{ 'Общее количество товаров'|trans }}</th>
+                    <td><span class="badge bg-secondary">{{ productsCount }}</span></td>
+                </tr>
+                <tr>
+                    <th>{{ 'Общее количество заказов'|trans }}</th>
+                    <td><span class="badge bg-secondary">{{ orderedCount }}</span></td>
+                </tr>
+                <tr>
+                    <th>{{ 'Завершенные заказы'|trans }}</th>
+                    <td><span class="badge bg-secondary">{{ orderedSoldCount }}</span></td>
+                </tr>
+                <tr>
+                    <th>{{ 'Общее количество заказанных товаров'|trans }}</th>
+                    <td><span class="badge bg-secondary">{{ orderedProductsCount }}</span></td>
+                </tr>
+                <tr>
+                    <th>{{ 'Всего заказано на сумму'|trans }}</th>
+                    <td><b>{{ orderedProductsTotalCost|number_format(0, '', ' ') }}</b> ₸</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <h2 style="margin-bottom: 10px;">{{ 'Последние заказанные товары'|trans }}</h2>
+    <div class="row">
+        {% for orderProduct in lastOrderedProducts %}
+        <div class="col-md-3">
+            <div class="card border-0" style="width: 18rem;">
+                <a href="{{ ea_url({
+                    crudAction: 'detail',
+                    crudControllerFqcn: 'App\\Controller\\Admin\\ProductCrudController',
+                    entityId: orderProduct.product.id,
+                }) }}">
+                    <img src="{{ asset('uploads/products/' ~ orderProduct.product.image) }}" class="card-img-top" alt="{{ orderProduct.product }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ orderProduct.product }} <span class="small">{{ orderProduct.order.createdAt|date('d.m.Y, в H:i') }}</span></h5>
+                    <p class="card-text">{{ orderProduct.cost|number_format(0, '', ' ') }} ₸ <span class="small">({{ orderProduct.quantity }})</span></p>
+                    <a href="{{ ea_url({
+                        crudAction: 'detail',
+                        crudControllerFqcn: 'App\\Controller\\Admin\\OrderCrudController',
+                        entityId: orderProduct.order.id,
+                    }) }}" class="btn btn-primary">{{ 'Посмотреть заказ'|trans }}</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'Корзина'|trans }}{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('assets/js/mask.min.js') }}"></script>
+    <script>
+        function updateTotalAndProductsPrices() {
+            let total = 0;
+            for (let row of document.querySelector('.table-shopping-cart').rows) {
+                if (row.className === 'table-head') {
+                    continue;
+                }
+
+                const price = +row.querySelector('.product-price').innerHTML.trim().replace(' ', ''),
+                    quantity = +row.querySelector('.table-shopping-qty').value,
+                    cost = price * quantity;
+
+                row.querySelector('.product-cost').innerHTML = cost.toLocaleString();
+
+                total += cost;
+            }
+
+            updateFormProductsField();
+
+            document.querySelector('#total').innerHTML = total.toLocaleString();
+        }
+
+        function updateFormProductsField() {
+            class Product {
+                constructor(id, price, quantity) {
+                    this.id = id;
+                    this.price = price;
+                    this.quantity = quantity;
+                }
+            }
+
+            const products = [];
+            for (let row of document.querySelector('.table-shopping-cart').rows) {
+                if (row.className === 'table-head') {
+                    continue;
+                }
+
+                products.push(new Product(
+                    +row.dataset.productId,
+                    +row.querySelector('.product-price').innerHTML.trim().replace(' ', ''),
+                    +row.querySelector('.table-shopping-qty').value
+                ));
+            }
+
+            document.querySelector('#order_products').value = JSON.stringify(products);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTotalAndProductsPrices();
+
+            document.querySelectorAll('.table-shopping-qty').forEach(() => addEventListener('input', updateTotalAndProductsPrices));
+
+            IMask(document.querySelector('#order_phoneNumber'), {
+                mask: '+{7} (700) 000 00 00'
+            });
+        });
+    </script>
+{% endblock %}
+{% block body %}
+    {% if productsInBasket is not empty %}
+        <header class="page-header">
+            <h1 class="page-title">{{ 'Корзина'|trans }}</h1>
+        </header>
+        <div class="row">
+            <div class="col-md-10">
+                <table class="table table table-shopping-cart">
+                    <thead>
+                    <tr class="table-head">
+                        <th>{{ 'Товар'|trans }}</th>
+                        <th>{{ 'Название товара'|trans }}</th>
+                        <th>{{ 'Цена'|trans }}</th>
+                        <th>{{ 'Количество'|trans }}</th>
+                        <th>{{ 'Стоимость'|trans }}</th>
+                        <th>{{ 'Удалить из корзины'|trans }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in productsInBasket %}
+                        <tr data-product-id="{{ product.id }}">
+                            <td class="table-shopping-cart-img">
+                                <a href="{{ path('product', {id: product.id}) }}">
+                                    <img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product }}" title="{{ product }}" />
+                                </a>
+                            </td>
+                            <td class="table-shopping-cart-title"><a href="{{ path('product', {id: product.id}) }}">{{ product }}</a>
+                            </td>
+                            <td>
+                        <span class="product-price">
+                        {% if product.discountPrice is not null %}
+                            {{ product.discountPrice|number_format(0, '', ' ') }}
+                        {% else %}
+                            {{ product.cost|number_format(0, '', ' ') }}
+                        {% endif %}
+                        </span>
+                                ₸
+                            </td>
+                            <td>
+                                <input class="form-control table-shopping-qty" type="number" value="1" min="1"/>
+                            </td>
+                            <td>
+                        <span class="product-cost">
+                        {% if product.discountPrice is not null %}
+                            {{ product.discountPrice|number_format(0, '', ' ') }}
+                        {% else %}
+                            {{ product.cost|number_format(0, '', ' ') }}
+                        {% endif %}
+                        </span>
+                                ₸
+                            </td>
+                            <td>
+                                <form action="{{ path('remove_product_from_basket', {id: product.id}) }}" method="post">
+                                    <button class="fa fa-close table-shopping-remove" style="color: inherit;border: none;padding: 0;cursor: pointer;outline: inherit;">
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="gap gap-small"></div>
+            </div>
+            <div class="col-md-2">
+                <ul class="shopping-cart-total-list">
+                    <li><span>{{ 'Доставка'|trans }}</span><span>{{ 'Бесплатная'|trans }}</span>
+                    </li>
+                    </li>
+                    <li><span>{{ 'Общая стоимость'|trans }}</span><span><span id="total"></span> ₸</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <h2>{{ 'Оформить заказ'|trans }}</h2>
+                <br>
+                {{ form(form, {action: path('create_order')}) }}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center"><i class="fa fa-cart-arrow-down empty-cart-icon"></i>
+            <p class="lead">{{ 'Вы еще не добавили товаров в корзину'|trans }}</p>
+        </div>
+        <div class="gap"></div>
+    {% endif %}
+{% endblock %}
